@@ -1,5 +1,6 @@
 package com.nayoon.ai_shop.service;
 
+import com.nayoon.ai_shop.infrastructure.persistence.UserEntity;
 import com.nayoon.ai_shop.infrastructure.security.JwtTokenProvider;
 import com.nayoon.ai_shop.domain.model.User;
 import com.nayoon.ai_shop.infrastructure.security.PasswordHasher;
@@ -28,7 +29,7 @@ public class UserService {
     }
 
     public String login(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email).map(UserEntity::toDomain)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!user.isPasswordMatch(rawPassword, hasher)) {

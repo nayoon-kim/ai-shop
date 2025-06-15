@@ -1,5 +1,6 @@
 package com.nayoon.ai_shop.infrastructure.persistence;
 
+import com.nayoon.ai_shop.domain.model.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -32,5 +33,9 @@ public class UserEntity {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public User toDomain() {
+        return new User(id, email, passwordHash);
     }
 }
