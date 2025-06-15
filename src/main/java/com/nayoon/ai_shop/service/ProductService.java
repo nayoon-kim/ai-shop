@@ -1,6 +1,7 @@
 package com.nayoon.ai_shop.service;
 
 import com.nayoon.ai_shop.domain.model.Product;
+import com.nayoon.ai_shop.domain.model.enums.Category;
 import com.nayoon.ai_shop.infrastructure.persistence.ProductEntity;
 import com.nayoon.ai_shop.domain.model.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,13 @@ public class ProductService {
 
     public List<Product> getAllProducts() {
         return productRepository.findAll()
+                .stream()
+                .map(ProductEntity::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    public List<Product> getProductsByCategory(Category category) {
+        return productRepository.findByCategory(category)
                 .stream()
                 .map(ProductEntity::toDomain)
                 .collect(Collectors.toList());
