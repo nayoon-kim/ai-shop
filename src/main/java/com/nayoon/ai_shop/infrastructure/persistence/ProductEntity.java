@@ -20,6 +20,10 @@ public class ProductEntity {
     @Enumerated(EnumType.STRING)
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    private BrandEntity brand;
+
     @Column(nullable = false)
     private int price;
 
@@ -31,6 +35,6 @@ public class ProductEntity {
     }
 
     public Product toDomain() {
-        return new Product(id, name, category, price, registeredAt);
+        return new Product(id, name, category, brand.toDomain(), price, registeredAt);
     }
 }
