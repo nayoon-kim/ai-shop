@@ -4,7 +4,6 @@ import com.nayoon.ai_shop.domain.model.Product;
 import com.nayoon.ai_shop.domain.model.enums.Category;
 import com.nayoon.ai_shop.infrastructure.persistence.ProductEntity;
 import com.nayoon.ai_shop.domain.model.ProductRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,7 +45,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public List<Product> getProductsFiltered(Category category, Long brandId) {
         if (category == null && brandId == null) {
             return getAllProducts();
