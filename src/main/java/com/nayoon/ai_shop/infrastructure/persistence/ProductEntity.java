@@ -27,6 +27,9 @@ public class ProductEntity {
     @Column(nullable = false)
     private int price;
 
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private StockEntity stock;
+
     @Column(name = "registered_at", nullable = false)
     private LocalDateTime registeredAt;
 
