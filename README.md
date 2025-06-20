@@ -1,3 +1,85 @@
+✅ 1. Login Functionality (Spring Security + JWT)
+
+📌 Goals
+
+- Issue JWT after user authentication
+- Maintain login state using JWT
+- Authenticate each request via JWT
+
+✅ 2. View All Products / Filter by Category
+
+✔️ API Design
+- GET /products → Retrieve all products
+- GET /products?category=electronics → Filter by category
+
+
+✅ 3. Add Brand Filtering
+
+✔️ API Design
+- GET /products?brand=BRAND → Filter by brand
+
+Potential N+1 issue when adding brand filtering → resolved using fetch join
+
+
+✅ 4. Inventory Management
+
+🔥 Concurrency Problem
+- If multiple users order a product with only 1 item left, the stock can go negative.
+- Must implement safeguards to prevent this.
+
+🛠 Inventory Decrease API
+
+- Scenario
+  When 1,000 users attempt to order 100 items at the same time, stock should not go negative.
+
+- Implementation Options
+1. Use Redis + Lua scripts for distributed locking
+2. Use @Version for Optimistic Locking in the DB
+3. Use @Transactional with PESSIMISTIC_WRITE
+
+✅ Stock Reservation + Payment Flow
+1. User initiates payment
+2. Decrease stock first (reserve the item)
+3. Concurrency control must be applied during stock decrement (e.g., Redis lock or Optimistic Lock)
+4. Send payment request to PG (Payment Gateway)
+5. Confirm payment result
+
+- 💰 If successful → proceed
+
+- ❌ If failed → restore stock
+
+  Stock restoration logic should be handled separately
+
+    - Example:
+        1. On payment failure
+        2. send an event to a stock restoration queue
+        3.  A consumer processes the queue and restores stock accordingly
+
+✅ 5. Coupon System
+
+🛠 First-Come-First-Served Coupon Distribution
+
+Scenario
+- Only 100 coupons are issued per day.
+- Even under high concurrency, only exactly 100 users should receive them.
+
+Solution
+- Use atomic operations in Redis (INCR / DECR)
+- Requests exceeding the limit will receive a "Sold Out" message
+
+✅ 6. Favorite Brand Feature
+
+🛠 Increasing Like Count
+
+Scenario
+- Many users may like brands simultaneously; the count must remain accurate.
+
+Solution
+- Cache like counts in Redis
+- Periodically sync with the database
+
+
+
 ✅ 1. 로그인 기능 (Spring Security + JWT)
 
 📌 목표
@@ -38,28 +120,33 @@ brand 추가로 N+1 이슈 발생 가능 -> fetch join 으로 개선
 3. 재고 수량을 줄이면서 동시에 동시성 제어를 해야 해 (예: Redis 락 or Optimistic Lock)
 4. 결제 요청을 PG사에 보냄
 5. 결제 결과 확인
-💰 성공하면 그대로 유지
-❌ 실패하면 → 재고를 복원
+- 💰 성공하면 그대로 유지
+- ❌ 실패하면 → 재고를 복원
 
    재고 복원 로직을 별도로 둠
-   예: 결제 실패 이벤트 → 재고 복원 큐에 추가 → 소비자(consumer)가 재고 복원
+   - 예: 
+    1. 결제 실패 이벤트
+  2. 재고 복원 큐에 추가
+  3. 소비자(consumer)가 재고 복원
 
 ✅ 5. 쿠폰
 
 🛠 쿠폰 선착순 발급
 
-- 시나리오
-하루에 100명에게만 쿠폰 발급
-동시에 여러 명이 요청 보내도 정확히 100명만 성공해야 함
-- 해결책
-Redis에서 atomic 연산 (INCR / DECR)
-실패한 요청은 “선착순 마감” 메시지
+시나리오
+- 하루에 100명에게만 쿠폰 발급
+- 동시에 여러 명이 요청 보내도 정확히 100명만 성공해야 함
+
+해결책
+- Redis에서 atomic 연산 (INCR / DECR)
+- 실패한 요청은 “선착순 마감” 메시지
 
 ✅ 6. 좋아하는 브랜드 표시
 
 🛠 좋아요 수 증가
 
-- 시나리오
-실시간으로 좋아요 누르는 사용자가 많아도 정확한 숫자 유지
-- 해결책
-Redis에 좋아요 수 캐싱하고 일정 주기마다 DB 반영
+시나리오
+- 실시간으로 좋아요 누르는 사용자가 많아도 정확한 숫자 유지
+
+해결책
+- Redis에 좋아요 수 캐싱하고 일정 주기마다 DB 반영
