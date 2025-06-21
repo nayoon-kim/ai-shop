@@ -2,12 +2,10 @@ package com.nayoon.ai_shop.service;
 
 import com.nayoon.ai_shop.domain.model.Product;
 import com.nayoon.ai_shop.domain.model.enums.Category;
-import com.nayoon.ai_shop.infrastructure.persistence.ProductEntity;
 import com.nayoon.ai_shop.domain.model.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -18,31 +16,19 @@ public class ProductService {
     }
 
     public List<Product> getAllProducts() {
-        return productRepository.findAll()
-                .stream()
-                .map(ProductEntity::toDomain)
-                .collect(Collectors.toList());
+        return productRepository.findAll();
     }
 
     public List<Product> getProductsByCategory(Category category) {
-        return productRepository.findByCategory(category)
-                .stream()
-                .map(ProductEntity::toDomain)
-                .collect(Collectors.toList());
+        return productRepository.findByCategory(category);
     }
 
     public List<Product> getProductsByBrandId(Long brandId) {
-        return productRepository.findByBrandId(brandId)
-                .stream()
-                .map(ProductEntity::toDomain)
-                .collect(Collectors.toList());
+        return productRepository.findByBrandId(brandId);
     }
 
     public List<Product> getProductsByCategoryAndBrandId(Category category, Long brandId) {
-        return productRepository.findByCategoryAndBrandId(category, brandId)
-                .stream()
-                .map(ProductEntity::toDomain)
-                .collect(Collectors.toList());
+        return productRepository.findByCategoryAndBrandId(category, brandId);
     }
 
     public List<Product> getProductsFiltered(Category category, Long brandId) {

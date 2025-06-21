@@ -1,47 +1,41 @@
 package com.nayoon.ai_shop.domain.model;
 
 import com.nayoon.ai_shop.domain.model.enums.Category;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
+@Entity
+@Table(name = "products")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Product {
-    private final Long id;
-    private final String name;
-    private final Category category;
-    private final Brand brand;
-    private final int price;
-    private final LocalDateTime registeredAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Product(Long id, String name, Category category, Brand brand, int price, LocalDateTime registeredAt) {
-        this.id = id;
-        this.name = name;
-        this.category = category;
-        this.brand = brand;
-        this.price = price;
-        this.registeredAt = registeredAt;
-    }
+    @Column(nullable = false)
+    private String name;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Category category;
 
-    public String getName() {
-        return name;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
-    public Category getCategory() {
-        return category;
-    }
+    @Column(nullable = false)
+    private int price;
 
-    public Brand getBrand() {
-        return brand;
-    }
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Stock stock;
 
-    public int getPrice() {
-        return price;
-    }
-
-    public LocalDateTime getRegisteredAt() {
-        return registeredAt;
-    }
+    @Column(name = "registered_at", nullable = false)
+    private LocalDateTime registeredAt;
 }

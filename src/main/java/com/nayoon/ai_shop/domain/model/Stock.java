@@ -1,29 +1,33 @@
 package com.nayoon.ai_shop.domain.model;
 
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@Entity
+@Table(name = "stocks")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Stock {
-    private final Long id;
-    private final Product product;
-    private final int quantity;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Stock(Long id, Product product, int quantity) {
-        this.id = id;
-        this.product = product;
-        this.quantity = quantity;
-    }
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-    public Stock reserve(int quantity) {
+    @Column(nullable = false)
+    private int quantity;
+
+    public void reserve(int quantity) {
         if (this.quantity < quantity) {
             throw new IllegalArgumentException(
                     "Not enough stock to reserve. Available: " + this.quantity + ", Requested: " + quantity);
         }
-        return new Stock(id, product, this.quantity - quantity);
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public int getQuantity() {
-        return quantity;
+        this.quantity -= quantity;
     }
 }

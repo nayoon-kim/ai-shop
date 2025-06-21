@@ -1,10 +1,10 @@
 package com.nayoon.ai_shop.controller;
 
 import com.nayoon.ai_shop.controller.request.StockRequest;
-import com.nayoon.ai_shop.controller.response.TokenResponse;
 import com.nayoon.ai_shop.domain.model.Stock;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +12,7 @@ import com.nayoon.ai_shop.service.StockService;
 import com.nayoon.ai_shop.service.PaymentService;
 import com.nayoon.ai_shop.controller.response.PaymentResponse;
 
-@Controller
+@RestController
 @RequestMapping("/stocks")
 public class StockController {
     private final StockService stockService;
@@ -23,7 +23,11 @@ public class StockController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping("/buy")
+    @PostMapping(
+            value = "/buy",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     private ResponseEntity<PaymentResponse> payment(@RequestBody StockRequest stockRequest) {
         Stock stock = stockService.reserveStock(stockRequest.getProductId(), stockRequest.getQuantity());
         return ResponseEntity.ok(new PaymentResponse(stock));

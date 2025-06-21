@@ -2,35 +2,16 @@ package com.nayoon.ai_shop.controller.response;
 
 import com.nayoon.ai_shop.domain.model.Product;
 import com.nayoon.ai_shop.domain.model.enums.Category;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
+@AllArgsConstructor
 public class ProductResponse {
     private Long id;
     private String name;
     private int price;
     private Category category;
-
-    public ProductResponse(Long id, String name, int price, Category category) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.category = category;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
 
     public static ProductResponse from(Product product) {
         return new ProductResponse(
