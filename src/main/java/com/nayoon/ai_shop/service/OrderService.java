@@ -22,19 +22,20 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public void order(Long productId, int quantity) throws InterruptedException, PaymentException, SoldOutException {
-        boolean reserved = redisStockService.reserve(productId, quantity);
-        if (!reserved) throw new IllegalStateException("재고 부족");
-
-        Product product = productService.getProduct(productId);
+    public void order(Long productId, Long quantity) {
         try {
+            boolean reserved = redisStockService.reserve(productId, quantity);
+            if (!reserved) throw new IllegalStateException("재고 부족");
+
+            Product product = productService.getProduct(productId);
+
             boolean paid = paymentService.pay(product.getPrice());
             if (!paid) throw new PaymentException("결제 실패");
 
             // 결제 성공 → DB 반영
             stockService.decrease(productId, quantity); // 실제 재고 감소
 //            orderRepository.save(Order.createFrom(paymentRequest)); // 주문 기록
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             // 결제 실패 or 에러 → Redis 재고 복구
             redisStockService.rollback(productId, quantity);
             throw e;

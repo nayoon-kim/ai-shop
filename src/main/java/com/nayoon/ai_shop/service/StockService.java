@@ -15,7 +15,7 @@ public class StockService {
     }
 
     @Transactional
-    public void decrease(Long productId, int quantity) throws SoldOutException  {
+    public void decrease(Long productId, Long quantity) throws SoldOutException  {
         int updates = stockRepository.decrease(productId, quantity);
 
         if (updates <= 0) {

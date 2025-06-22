@@ -15,6 +15,14 @@ public class RedisService {
         return redisTemplate.opsForValue().decrement(key);
     }
 
+    public Long decrement(String key, Long quantity) {
+        return redisTemplate.opsForValue().decrement(key, quantity);
+    }
+
+    public Long increment(String key, Long quantity) {
+        return redisTemplate.opsForValue().increment(key, quantity);
+    }
+
     public void saveValue(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
     }

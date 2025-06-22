@@ -1,5 +1,6 @@
 package com.nayoon.ai_shop.service;
 
+import com.nayoon.ai_shop.exception.LockInterruptedException;
 import com.nayoon.ai_shop.exception.SoldOutException;
 import jakarta.transaction.Transactional;
 import org.redisson.api.RLock;
@@ -19,25 +20,39 @@ public class RedisStockService {
     }
 
     @Transactional
-    public boolean reserve(Long productId, int quantity) throws InterruptedException {
-        RLock rlock = redissonClient.getLock("lock:product:1");
-        if (rlock.tryLock(3, 1, TimeUnit.SECONDS)) {
-            try {
-                Long stock = redisService.decrement("stock:product:1");
+    public boolean reserve(Long productId, Long quantity) {
+        RLock rlock = redissonClient.getLock("lock:product:" + productId);
+        try {
+            if (rlock.tryLock(3, 1, TimeUnit.SECONDS)) {
+                Long stock = redisService.decrement("stock:product:" + productId, quantity);
                 if (stock <= 0) {
                     throw new SoldOutException();
                 }
-                
                 return true;
-            } catch (SoldOutException e) {
-                throw new RuntimeException(e);
-            } finally {
-                rlock.unlock();
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new LockInterruptedException("Lock interrupted", e);
+        } finally {
+            rlock.unlock();
         }
         return false;
     }
 
-    public void rollback(Long productId, int quantity) {
+    public void rollback(Long productId, Long quantity) {
+        RLock rlock = redissonClient.getLock("lock:product:" + productId);
+        try {
+            if (rlock.tryLock(3, 1, TimeUnit.SECONDS)) {
+                Long stock = redisService.increment("stock:product:" + productId, quantity);
+                if (stock <= 0) {
+                    throw new SoldOutException();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new LockInterruptedException("Lock interrupted", e);
+        } finally {
+            rlock.unlock();
+        }
     }
 }

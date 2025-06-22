@@ -1,9 +1,7 @@
 package com.nayoon.ai_shop.exception;
 
-public class PaymentException extends Exception{
-    protected String msg;
-
+public class PaymentException extends RuntimeException {
     public PaymentException(String msg) {
-        this.msg = msg;
+        super(msg);
     }
 }

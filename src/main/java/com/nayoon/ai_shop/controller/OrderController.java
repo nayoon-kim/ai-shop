@@ -20,7 +20,7 @@ public class OrderController {
     }
 
     @PostMapping("/buy")
-    private ResponseEntity<String> order(@RequestBody StockRequest stockRequest) throws InterruptedException, PaymentException, SoldOutException {
+    private ResponseEntity<String> order(@RequestBody StockRequest stockRequest) {
         orderService.order(stockRequest.getProductId(), stockRequest.getQuantity());
         return ResponseEntity.ok("registered: ");
     }
