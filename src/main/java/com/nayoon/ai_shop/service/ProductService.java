@@ -31,6 +31,10 @@ public class ProductService {
         return productRepository.findByCategoryAndBrandId(category, brandId);
     }
 
+    public Product getProduct(Long id) {
+        return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
     public List<Product> getProductsFiltered(Category category, Long brandId) {
         if (category == null && brandId == null) {
             return getAllProducts();

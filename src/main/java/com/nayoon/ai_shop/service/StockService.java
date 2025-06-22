@@ -1,8 +1,9 @@
 package com.nayoon.ai_shop.service;
 
-import com.nayoon.ai_shop.domain.model.Stock;
 import com.nayoon.ai_shop.domain.model.StockRepository;
 
+import com.nayoon.ai_shop.exception.SoldOutException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,11 +14,12 @@ public class StockService {
         this.stockRepository = stockRepository;
     }
 
-    public Stock reserveStock(Long productId, int quantity) {
-        Stock stock = stockRepository.findByProductId(productId)
-                .orElseThrow(() -> new RuntimeException("stock not found"));
-        stock.reserve(quantity);
+    @Transactional
+    public void decrease(Long productId, int quantity) throws SoldOutException  {
+        int updates = stockRepository.decrease(productId, quantity);
 
-        return stockRepository.save(stock);
+        if (updates <= 0) {
+            throw new SoldOutException();
+        }
     }
 }
