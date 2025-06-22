@@ -1,8 +1,6 @@
 package com.nayoon.ai_shop.controller;
 
 import com.nayoon.ai_shop.controller.request.StockRequest;
-import com.nayoon.ai_shop.exception.PaymentException;
-import com.nayoon.ai_shop.exception.SoldOutException;
 import com.nayoon.ai_shop.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;

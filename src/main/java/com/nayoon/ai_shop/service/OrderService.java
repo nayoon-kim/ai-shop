@@ -3,7 +3,6 @@ package com.nayoon.ai_shop.service;
 import com.nayoon.ai_shop.domain.model.OrderRepository;
 import com.nayoon.ai_shop.domain.model.Product;
 import com.nayoon.ai_shop.exception.PaymentException;
-import com.nayoon.ai_shop.exception.SoldOutException;
 import org.springframework.stereotype.Service;
 
 @Service
