@@ -33,9 +33,13 @@ Potential N+1 issue when adding brand filtering → resolved using fetch join
   When 1,000 users attempt to order 100 items at the same time, stock should not go negative.
 
 - Implementation Options
-1. Use Redis + Lua scripts for distributed locking
-2. Use @Version for Optimistic Locking in the DB
-3. Use @Transactional with PESSIMISTIC_WRITE
+1. Use Redis for distributed lock and reserve stock
+2. Process payment
+3. if suceed, reserve stock in DB
+4. if fail, rollback or recovery queue
+
+- Use @Version for Optimistic Locking in the DB(maybe use this when do 2)
+- Use @Transactional with PESSIMISTIC_WRITE
 
 ✅ Stock Reservation + Payment Flow
 1. User initiates payment
