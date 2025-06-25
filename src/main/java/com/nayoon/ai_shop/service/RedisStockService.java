@@ -22,23 +22,29 @@ public class RedisStockService {
     @Transactional
     public boolean reserve(Long productId, Long quantity) {
         RLock rlock = redissonClient.getLock("lock:product:" + productId);
+        boolean locked = false;
         try {
-            if (rlock.tryLock(3, 1, TimeUnit.SECONDS)) {
+            locked = rlock.tryLock(3, 1, TimeUnit.SECONDS);
+            if (locked) {
                 Long stock = redisService.decrement("stock:product:" + productId, quantity);
-                if (stock <= 0) {
+                if (stock < 0) {
                     throw new SoldOutException();
                 }
                 return true;
+            } else {
+                return false;
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new LockInterruptedException("Lock interrupted", e);
         } finally {
-            rlock.unlock();
+            if (locked) {
+                rlock.unlock();
+            }
         }
-        return false;
     }
 
+    @Transactional
     public void rollback(Long productId, Long quantity) {
         RLock rlock = redissonClient.getLock("lock:product:" + productId);
         try {
