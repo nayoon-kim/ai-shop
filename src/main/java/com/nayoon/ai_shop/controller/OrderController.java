@@ -1,6 +1,7 @@
 package com.nayoon.ai_shop.controller;
 
-import com.nayoon.ai_shop.controller.request.StockRequest;
+import com.nayoon.ai_shop.controller.request.OrderRequest;
+import com.nayoon.ai_shop.controller.response.OrderResponse;
 import com.nayoon.ai_shop.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
-@RequestMapping("/stocks")
+@RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
 
@@ -17,9 +18,9 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/buy")
-    private ResponseEntity<String> order(@RequestBody StockRequest stockRequest) {
-        orderService.order(stockRequest.getProductId(), stockRequest.getQuantity());
-        return ResponseEntity.ok("registered: ");
+    @PostMapping
+    private ResponseEntity<OrderResponse> order(@RequestBody OrderRequest orderRequest) {
+        Long orderId = orderService.order(orderRequest);
+        return ResponseEntity.ok(new OrderResponse(orderId));
     }
 }
