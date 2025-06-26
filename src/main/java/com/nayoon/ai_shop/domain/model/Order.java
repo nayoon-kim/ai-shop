@@ -4,10 +4,15 @@ import com.nayoon.ai_shop.controller.request.OrderRequest;
 import com.nayoon.ai_shop.domain.model.enums.OrderStatus;
 import com.nayoon.ai_shop.domain.model.enums.PaymentMethod;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "orders")
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Order {
     @Id
