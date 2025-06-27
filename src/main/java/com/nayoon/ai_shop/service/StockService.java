@@ -1,9 +1,7 @@
 package com.nayoon.ai_shop.service;
 
+import com.nayoon.ai_shop.domain.model.Stock;
 import com.nayoon.ai_shop.domain.model.StockRepository;
-
-import com.nayoon.ai_shop.exception.SoldOutException;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,12 +12,19 @@ public class StockService {
         this.stockRepository = stockRepository;
     }
 
-    @Transactional
-    public void decrease(Long productId, Long quantity) throws SoldOutException  {
+    public boolean decrease(Long productId, Long quantity) {
         int updates = stockRepository.decrease(productId, quantity);
+        return updates <= 0;
+    }
 
-        if (updates <= 0) {
-            throw new SoldOutException();
+    public boolean reserveWithPessimisticLock(Long productId, Long quantity) {
+        Stock stock = stockRepository.findByIdForUpdate(productId)
+                .orElseThrow(() -> new RuntimeException("재고 없음"));
+
+        if (stock.getQuantity() < quantity) {
+            return false;
         }
+
+        return true;
     }
 }

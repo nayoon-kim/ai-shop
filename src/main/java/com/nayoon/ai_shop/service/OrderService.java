@@ -6,16 +6,14 @@ import com.nayoon.ai_shop.domain.model.Product;
 import com.nayoon.ai_shop.domain.model.Order;
 import com.nayoon.ai_shop.exception.PaymentException;
 import com.nayoon.ai_shop.exception.SoldOutException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-public class OrderService {
-    private final PaymentService paymentService;
-    private final StockService stockService;
-    private final RedisStockService redisStockService;
-    private final ProductService productService;
-    private final OrderRepository orderRepository;
+public abstract class OrderService {
+    protected final PaymentService paymentService;
+    protected final StockService stockService;
+    protected final RedisStockService redisStockService;
+    protected final ProductService productService;
+    protected final OrderRepository orderRepository;
 
     public OrderService(PaymentService paymentService, StockService stockService, RedisStockService redisStockService, ProductService productService, OrderRepository orderRepository) {
         this.paymentService = paymentService;
@@ -31,7 +29,7 @@ public class OrderService {
         Order order = Order.from(orderRequest, product);
         try {
             // 재고 선점
-            boolean reserved = redisStockService.reserve(orderRequest.getProductId(), orderRequest.getQuantity());
+            boolean reserved = reserve(orderRequest);
             if (!reserved) throw new SoldOutException("재고 부족");
 
             // 결제 시도
@@ -41,10 +39,10 @@ public class OrderService {
             order.markAsPaid();
 
             // 결제 성공 → DB 반영
-            stockService.decrease(orderRequest.getProductId(), orderRequest.getQuantity()); // 실제 재고 감소
+            decrease(orderRequest); // 실제 재고 감소
         } catch (PaymentException | SoldOutException e) {
             // 결제 실패 or 에러 → Redis 재고 복구
-            redisStockService.rollback(orderRequest.getProductId(), orderRequest.getQuantity());     // 먼저 Redis 재고 복구
+            rollback(orderRequest);     // 먼저 Redis 재고 복구
             order.markAsFailed();                // 실패 상태로 마킹
             orderRepository.save(order);        // 실패 주문도 저장
 
@@ -53,4 +51,8 @@ public class OrderService {
 
         return orderRepository.save(order).getOrderId(); // 주문 기록
     }
+
+    protected abstract boolean reserve(OrderRequest request);
+    protected abstract void decrease(OrderRequest request);
+    protected abstract void rollback(OrderRequest request);
 }
