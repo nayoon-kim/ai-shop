@@ -1,5 +1,6 @@
 package com.nayoon.ai_shop.service;
 
+import com.nayoon.ai_shop.exception.LockAcquisitionException;
 import com.nayoon.ai_shop.exception.LockInterruptedException;
 import com.nayoon.ai_shop.exception.SoldOutException;
 import jakarta.transaction.Transactional;
@@ -20,7 +21,7 @@ public class RedisStockService {
     }
 
     @Transactional
-    public boolean reserve(Long productId, Long quantity) {
+    public void reserve(Long productId, Long quantity) {
         RLock rlock = redissonClient.getLock("lock:product:" + productId);
         boolean locked = false;
         try {
@@ -30,9 +31,8 @@ public class RedisStockService {
                 if (stock < 0) {
                     throw new SoldOutException();
                 }
-                return true;
             } else {
-                return false;
+                throw new LockAcquisitionException("락 획득 실패");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
