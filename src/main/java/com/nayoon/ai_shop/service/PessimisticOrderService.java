@@ -2,8 +2,10 @@ package com.nayoon.ai_shop.service;
 
 import com.nayoon.ai_shop.controller.request.OrderRequest;
 import com.nayoon.ai_shop.domain.model.OrderRepository;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+@Primary
 @Service
 public class PessimisticOrderService extends OrderService {
     public PessimisticOrderService(PaymentService paymentService, StockService stockService,
@@ -13,8 +15,8 @@ public class PessimisticOrderService extends OrderService {
     }
 
     @Override
-    protected boolean reserve(OrderRequest request) {
-        return stockService.reserveWithPessimisticLock(request.getProductId(), request.getQuantity());
+    protected void reserve(OrderRequest request) {
+        stockService.reserveWithPessimisticLock(request.getProductId(), request.getQuantity());
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.nayoon.ai_shop.controller.request.OrderRequest;
 import com.nayoon.ai_shop.domain.model.OrderRepository;
 import org.springframework.stereotype.Service;
 
-//@Service
+@Service
 public class RedisOrderService extends OrderService {
     public RedisOrderService(PaymentService paymentService, StockService stockService,
                              RedisStockService redisStockService, ProductService productService,
@@ -13,8 +13,8 @@ public class RedisOrderService extends OrderService {
     }
 
     @Override
-    protected boolean reserve(OrderRequest request) {
-        return redisStockService.reserve(request.getProductId(), request.getQuantity());
+    protected void reserve(OrderRequest request) {
+        redisStockService.reserve(request.getProductId(), request.getQuantity());
     }
 
     @Override
