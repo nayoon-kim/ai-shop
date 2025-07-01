@@ -4,10 +4,7 @@ import com.nayoon.ai_shop.controller.request.OrderRequest;
 import com.nayoon.ai_shop.domain.model.OrderRepository;
 import com.nayoon.ai_shop.domain.model.Product;
 import com.nayoon.ai_shop.domain.model.Order;
-import com.nayoon.ai_shop.exception.LockAcquisitionException;
-import com.nayoon.ai_shop.exception.LockInterruptedException;
-import com.nayoon.ai_shop.exception.PaymentException;
-import com.nayoon.ai_shop.exception.SoldOutException;
+import com.nayoon.ai_shop.exception.*;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class OrderService {
@@ -41,7 +38,7 @@ public abstract class OrderService {
 
             // 결제 성공 → DB 반영
             decrease(orderRequest); // 실제 재고 감소
-        } catch (PaymentException | SoldOutException | LockAcquisitionException | LockInterruptedException e) {
+        } catch (StockException e) {
             // 결제 실패 or 에러 → Redis 재고 복구
             rollback(orderRequest);     // 먼저 Redis 재고 복구
             order.markAsFailed();                // 실패 상태로 마킹
