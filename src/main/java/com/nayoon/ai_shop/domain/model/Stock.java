@@ -1,5 +1,6 @@
 package com.nayoon.ai_shop.domain.model;
 
+import com.nayoon.ai_shop.exception.SoldOutException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,13 +22,17 @@ public class Stock {
     private Product product;
 
     @Column(nullable = false)
-    private int quantity;
+    private Long quantity;
 
-    public void reserve(int quantity) {
+    @Version
+    private Long version;
+
+    public void decrease(Long quantity) {
         if (this.quantity < quantity) {
-            throw new IllegalArgumentException(
+            throw new SoldOutException(
                     "Not enough stock to reserve. Available: " + this.quantity + ", Requested: " + quantity);
         }
+
         this.quantity -= quantity;
     }
 }

@@ -45,12 +45,14 @@ public abstract class OrderService {
             orderRepository.save(order);        // 실패 주문도 저장
 
             throw e;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         return orderRepository.save(order).getOrderId(); // 주문 기록
     }
 
     protected abstract void reserve(OrderRequest request);
-    protected abstract void decrease(OrderRequest request);
+    protected abstract void decrease(OrderRequest request) throws InterruptedException;
     protected abstract void rollback(OrderRequest request);
 }
