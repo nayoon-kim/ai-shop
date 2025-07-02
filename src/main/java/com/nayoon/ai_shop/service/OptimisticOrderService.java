@@ -26,5 +26,6 @@ public class OptimisticOrderService extends OrderService {
 
     @Override
     protected void rollback(OrderRequest request) {
+        paymentService.cancel(request);
     }
 }
