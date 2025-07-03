@@ -31,7 +31,7 @@ public class StockService {
         if (stock.getQuantity() < quantity) throw new SoldOutException();
     }
 
-    public void decreaseWithOptimisticLock(Long productId, Long quantity) throws InterruptedException {
+    public void reserveWithOptimisticLock(Long productId, Long quantity) throws InterruptedException {
         while(true) {
             try {
                 Stock stock = stockRepository.findByProductIdWithOptimisticLock(productId).

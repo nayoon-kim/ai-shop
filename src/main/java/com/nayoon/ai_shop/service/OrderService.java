@@ -52,7 +52,7 @@ public abstract class OrderService {
         return orderRepository.save(order).getOrderId(); // 주문 기록
     }
 
-    protected abstract void reserve(OrderRequest request);
-    protected abstract void decrease(OrderRequest request) throws InterruptedException;
+    protected abstract void reserve(OrderRequest request) throws InterruptedException;
+    protected abstract void decrease(OrderRequest request);
     protected abstract void rollback(OrderRequest request);
 }
