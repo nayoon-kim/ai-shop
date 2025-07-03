@@ -31,7 +31,7 @@ public class StockService {
         if (stock.getQuantity() < quantity) throw new SoldOutException();
     }
 
-    public void reserveWithOptimisticLock(Long productId, Long quantity) throws InterruptedException {
+    public void reserveWithOptimisticLock(Long productId, Long quantity) {
         while(true) {
             try {
                 Stock stock = stockRepository.findByProductIdWithOptimisticLock(productId).
@@ -43,7 +43,34 @@ public class StockService {
 
                 break;
             } catch(OptimisticLockException e) {
-                Thread.sleep(50);
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } catch(IllegalArgumentException | SoldOutException e) {
+                throw e;
+            }
+        }
+    }
+
+    public void rollbackWithOptimisticLock(Long productId, Long quantity) {
+        while(true) {
+            try {
+                Stock stock = stockRepository.findByProductIdWithOptimisticLock(productId).
+                        orElseThrow(() -> new IllegalArgumentException("재고 없음"));
+
+                stock.rollback(quantity); // 실제 재고 롤백
+
+                stockRepository.save(stock); // save 시 version 체크
+
+                break;
+            } catch(OptimisticLockException e) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
             } catch(IllegalArgumentException | SoldOutException e) {
                 throw e;
             }

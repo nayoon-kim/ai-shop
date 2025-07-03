@@ -35,4 +35,8 @@ public class Stock {
 
         this.quantity -= quantity;
     }
+
+    public void rollback(Long quantity) {
+        this.quantity += quantity;
+    }
 }

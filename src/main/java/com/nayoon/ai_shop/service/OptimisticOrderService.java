@@ -16,7 +16,7 @@ public class OptimisticOrderService extends OrderService {
     }
 
     @Override
-    protected void reserve(OrderRequest request) throws InterruptedException {
+    protected void reserve(OrderRequest request) {
         stockService.reserveWithOptimisticLock(request.getProductId(), request.getQuantity());
     }
 
@@ -26,6 +26,7 @@ public class OptimisticOrderService extends OrderService {
 
     @Override
     protected void rollback(OrderRequest request) {
+        stockService.rollbackWithOptimisticLock(request.getProductId(), request.getQuantity());
         paymentService.cancel(request);
     }
 }
