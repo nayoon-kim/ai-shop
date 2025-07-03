@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StockService {
+    private static final int MAX_RETRY = 5;
+    private static final long RETRY_WAIT_MS = 50;
+
     private final StockRepository stockRepository;
 
     public StockService(StockRepository stockRepository) {
@@ -32,19 +35,20 @@ public class StockService {
     }
 
     public void reserveWithOptimisticLock(Long productId, Long quantity) {
-        while(true) {
+        int retryCount = 0;
+
+        while(retryCount++ < MAX_RETRY) {
             try {
                 Stock stock = stockRepository.findByProductIdWithOptimisticLock(productId).
                         orElseThrow(() -> new IllegalArgumentException("재고 없음"));
 
                 stock.decrease(quantity); // 실제 재고 감소
-
                 stockRepository.save(stock); // save 시 version 체크
 
                 break;
             } catch(OptimisticLockException e) {
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(RETRY_WAIT_MS);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -52,22 +56,25 @@ public class StockService {
                 throw e;
             }
         }
+
+        throw new RuntimeException("재고 선점 재시도 초과");
     }
 
     public void rollbackWithOptimisticLock(Long productId, Long quantity) {
-        while(true) {
+        int retryCount = 0;
+
+        while(retryCount++ < MAX_RETRY) {
             try {
                 Stock stock = stockRepository.findByProductIdWithOptimisticLock(productId).
                         orElseThrow(() -> new IllegalArgumentException("재고 없음"));
 
                 stock.rollback(quantity); // 실제 재고 롤백
-
                 stockRepository.save(stock); // save 시 version 체크
 
-                break;
+                return;
             } catch(OptimisticLockException e) {
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(RETRY_WAIT_MS);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -75,5 +82,7 @@ public class StockService {
                 throw e;
             }
         }
+
+        throw new RuntimeException("재고 롤백 재시도 초과");
     }
 }
