@@ -26,15 +26,10 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
+    private Long brand_id;
 
     @Column(nullable = false)
     private int price;
-
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Stock stock;
 
     @Column(name = "registered_at", nullable = false)
     private LocalDateTime registeredAt;

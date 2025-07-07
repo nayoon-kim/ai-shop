@@ -56,6 +56,8 @@ public class Order {
         this.status = OrderStatus.PAID;
     }
 
+    public void markAsRollbackFailed() { this.status = OrderStatus.ROLLBACK_FAILED; }
+
     public static Order from(OrderRequest orderRequest, Product product) {
         return new Order(orderRequest.getProductId(), orderRequest.getQuantity(),
                 product.getPrice(), orderRequest.getPaymentRequest().getMethod(),

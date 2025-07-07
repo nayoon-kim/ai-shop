@@ -23,9 +23,6 @@ public class Brand {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product> products = new ArrayList<>();
-
     @Column(nullable = false)
     private LocalDateTime registeredAt;
 }
