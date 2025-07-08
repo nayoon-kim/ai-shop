@@ -13,7 +13,6 @@ import java.util.Optional;
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
 
-     @Query("SELECT s FROM Stock s JOIN FETCH s.product p JOIN FETCH p.brand WHERE p.id = :productId")
      Optional<Stock> findByProductId(@Param("productId") Long productId);
 
      @Modifying(clearAutomatically = true)
