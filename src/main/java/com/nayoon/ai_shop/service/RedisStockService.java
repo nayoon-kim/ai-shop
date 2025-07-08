@@ -3,7 +3,6 @@ package com.nayoon.ai_shop.service;
 import com.nayoon.ai_shop.exception.LockAcquisitionException;
 import com.nayoon.ai_shop.exception.LockInterruptedException;
 import com.nayoon.ai_shop.exception.SoldOutException;
-import jakarta.transaction.Transactional;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisStockService {
+    private static final String stock_key = "stock:product";
+    private static final String lock_key = "lock:product";
     private final RedisService redisService;
     private final RedissonClient redissonClient;
 
@@ -20,14 +21,12 @@ public class RedisStockService {
         this.redissonClient = redissonClient;
     }
 
-    @Transactional
     public void reserve(Long productId, Long quantity) {
-        RLock rlock = redissonClient.getLock("lock:product:" + productId);
-        boolean locked = false;
+        RLock rlock = redissonClient.getLock(lock_key + productId);
         try {
-            locked = rlock.tryLock(3, 1, TimeUnit.SECONDS);
+            boolean locked = rlock.tryLock(3, 1, TimeUnit.SECONDS);
             if (locked) {
-                Long stock = redisService.decrement("stock:product:" + productId, quantity);
+                Long stock = redisService.decrement(stock_key + productId, quantity);
                 if (stock < 0) {
                     throw new SoldOutException();
                 }
@@ -35,21 +34,15 @@ public class RedisStockService {
                 throw new LockAcquisitionException("락 획득 실패");
             }
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
             throw new LockInterruptedException("Lock interrupted", e);
-        } finally {
-            if (locked) {
-                rlock.unlock();
-            }
         }
     }
 
-    @Transactional
     public void rollback(Long productId, Long quantity) {
-        RLock rlock = redissonClient.getLock("lock:product:" + productId);
+        RLock rlock = redissonClient.getLock(lock_key + productId);
         try {
             if (rlock.tryLock(3, 1, TimeUnit.SECONDS)) {
-                Long stock = redisService.increment("stock:product:" + productId, quantity);
+                Long stock = redisService.increment(stock_key + productId, quantity);
                 if (stock <= 0) {
                     throw new SoldOutException();
                 }
@@ -57,8 +50,6 @@ public class RedisStockService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new LockInterruptedException("Lock interrupted", e);
-        } finally {
-            rlock.unlock();
         }
     }
 }

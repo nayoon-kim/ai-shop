@@ -1,29 +1,30 @@
 package com.nayoon.ai_shop.service;
 
 import com.nayoon.ai_shop.controller.request.OrderRequest;
-import com.nayoon.ai_shop.domain.model.OrderRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisOrderService extends OrderService {
-    public RedisOrderService(PaymentService paymentService, StockService stockService,
-                             RedisStockService redisStockService, ProductService productService,
-                             OrderRepository orderRepository) {
-        super(paymentService, stockService, redisStockService, productService, orderRepository);
+public class RedisOrderService implements StockManager {
+    private final RedisStockService redisStockService;
+    private final StockService stockService;
+
+    public RedisOrderService(RedisStockService redisStockService1, StockService stockService1) {
+        this.redisStockService = redisStockService1;
+        this.stockService = stockService1;
     }
 
     @Override
-    protected void reserve(OrderRequest request) {
+    public void reserve(OrderRequest request) {
         redisStockService.reserve(request.getProductId(), request.getQuantity());
     }
 
     @Override
-    protected void decrease(OrderRequest request) {
+    public void decrease(OrderRequest request) {
         stockService.decrease(request.getProductId(), request.getQuantity());
     }
 
     @Override
-    protected void rollback(OrderRequest request) {
+    public void rollback(OrderRequest request) {
         redisStockService.rollback(request.getProductId(), request.getQuantity());
     }
 }
