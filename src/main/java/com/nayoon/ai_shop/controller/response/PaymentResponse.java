@@ -8,10 +8,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PaymentResponse {
     private Long productId;
-    private int quantity;
+    private Long quantity;
 
     public PaymentResponse(Stock stock) {
-        this.productId = stock.getProduct().getId();
+        this.productId = stock.getProductId();
         this.quantity = stock.getQuantity();
     }
 }

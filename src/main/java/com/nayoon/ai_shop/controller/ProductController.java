@@ -22,8 +22,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getProducts(@RequestParam(name = "category", required = false) Category category, @RequestParam(name = "brand_id", required = false) Long brand_id) {
-        List<Product> products = productService.getProductsFiltered(category, brand_id);
+    public ResponseEntity<List<ProductResponse>> getProducts(
+            @RequestParam(required = false) Category category,
+            @RequestParam(required = false) Long brandId
+    ) {
+        List<Product> products = productService.getProductsFiltered(category, brandId);
         List<ProductResponse> responseList = products.stream()
                 .map(ProductResponse::from)
                 .toList();

@@ -1,32 +1,28 @@
 package com.nayoon.ai_shop.service;
 
 import com.nayoon.ai_shop.controller.request.OrderRequest;
-import com.nayoon.ai_shop.domain.model.OrderRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 @Primary
 @Service
-public class OptimisticOrderService extends OrderService {
+public class OptimisticOrderService implements StockManager {
+    private final StockService stockService;
 
-    public OptimisticOrderService(PaymentService paymentService, StockService stockService,
-                                  RedisStockService redisStockService, ProductService productService,
-                                  OrderRepository orderRepository) {
-        super(paymentService, stockService, redisStockService, productService, orderRepository);
+    public OptimisticOrderService(StockService stockService1) {
+        this.stockService = stockService1;
     }
 
     @Override
-    protected void reserve(OrderRequest request) {
+    public void reserve(OrderRequest request) {
         stockService.reserveWithOptimisticLock(request.getProductId(), request.getQuantity());
     }
 
     @Override
-    protected void decrease(OrderRequest request)  {
+    public void decrease(OrderRequest request)  {
     }
 
     @Override
-    protected void rollback(OrderRequest request) {
-        stockService.rollbackWithOptimisticLock(request.getProductId(), request.getQuantity());
-        paymentService.cancel(request);
+    public void rollback(OrderRequest request) {
     }
 }

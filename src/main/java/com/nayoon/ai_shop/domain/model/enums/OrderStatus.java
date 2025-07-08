@@ -5,5 +5,6 @@ public enum OrderStatus {
     PAID,        // 결제 완료
     FAILED,      // 결제 실패
     CANCELED,    // 사용자가 취소
-    SHIPPED      // 발송됨
+    SHIPPED,      // 발송됨
+    ROLLBACK_FAILED // 롤백 실패
 }
