@@ -1,156 +1,149 @@
-✅ 1. Login Functionality (Spring Security + JWT)
+# 🛒 AI Shopping Mall Project
 
-📌 Goals
+This is a Spring Boot–based shopping mall project with AI-powered product recommendation features.  
+It includes JWT authentication, concurrency control, Redis caching, coupon issuance, and more.
 
+---
+
+## ✅ Key Features
+
+### 1. 🔐 Login Functionality (Spring Security + JWT)
 - Issue JWT after user authentication
-- Maintain login state using JWT
-- Authenticate each request via JWT
+- Maintain login session with JWT
+- Authenticate every request using JWT
 
-✅ 2. View All Products / Filter by Category
+---
 
-✔️ API Design
-- GET /products → Retrieve all products
-- GET /products?category=electronics → Filter by category
+### 2. 📦 Product Retrieval
+- `GET /products` : Retrieve all products
+- `GET /products?category=electronics` : Filter by category
+- `GET /products?brand=BRAND` : Filter by brand
 
+---
 
-✅ 3. Add Brand Filtering
+### 3. 📉 Inventory Management & Concurrency Control
 
-✔️ API Design
-- GET /products?brand=BRAND → Filter by brand
+#### 🔥 Problem
+- If many users order a product with only 1 item left, the stock may go negative
 
-Potential N+1 issue when adding brand filtering → resolved using fetch join
+#### 🛠 Solution
+- Reserve stock in Redis before deducting from the database
+- Use Optimistic Lock (@Version)
+- Use Pessimistic Lock (`@Transactional` + `PESSIMISTIC_WRITE`)
 
+#### 💳 Payment Flow
 
-✅ 4. Inventory Management
-
-🔥 Concurrency Problem
-- If multiple users order a product with only 1 item left, the stock can go negative.
-- Must implement safeguards to prevent this.
-
-🛠 Inventory Decrease API
-
-- Scenario
-  When 1,000 users attempt to order 100 items at the same time, stock should not go negative.
-
-- Implementation Options
-1. Use Redis for distributed lock and reserve stock
-2. Process payment
-3. if suceed, reserve stock in DB
-4. if fail, rollback or recovery queue
-
-- Use @Version for Optimistic Locking in the DB(maybe use this when do 2)
-- Use @Transactional with PESSIMISTIC_WRITE
-
-✅ Stock Reservation + Payment Flow
 1. User initiates payment
-2. Decrease stock first (reserve the item)
-3. Concurrency control must be applied during stock decrement (e.g., Redis lock or Optimistic Lock)
-4. Send payment request to PG (Payment Gateway)
-5. Confirm payment result
+2. Pre-decrease stock (reservation)
+3. Send payment request to the PG provider
+4. Confirm payment result
+    - ✅ Success: keep the stock deducted
+    - ❌ Failure: restore the stock
+        - Trigger payment failure event
+        - Add to stock rollback queue
+        - Consumer processes restoration
 
-- 💰 If successful → proceed
+---
 
-- ❌ If failed → restore stock
+### 4. 🎟️ Coupon System
 
-  Stock restoration logic should be handled separately
+#### 💡 Scenario
+- Only 100 users per day can claim coupons
+- Even under heavy load, exactly 100 claims should succeed
 
-    - Example:
-        1. On payment failure
-        2. send an event to a stock restoration queue
-        3.  A consumer processes the queue and restores stock accordingly
+#### 🔧 Implementation
+- Use Redis atomic operations (`INCR` / `DECR`)
+- Send "Coupon limit reached" message for failed requests
 
-✅ 5. Coupon System
+---
 
-🛠 First-Come-First-Served Coupon Distribution
+### 5. ❤️ Favorite Brand Feature
 
-Scenario
-- Only 100 coupons are issued per day.
-- Even under high concurrency, only exactly 100 users should receive them.
+#### 🧠 Problem
+- Even with high-frequency "like" clicks, the count must remain accurate
 
-Solution
-- Use atomic operations in Redis (INCR / DECR)
-- Requests exceeding the limit will receive a "Sold Out" message
-
-✅ 6. Favorite Brand Feature
-
-🛠 Increasing Like Count
-
-Scenario
-- Many users may like brands simultaneously; the count must remain accurate.
-
-Solution
+#### 💾 Solution
 - Cache like counts in Redis
-- Periodically sync with the database
+- Periodically flush counts to the database (via batch or cron job)
+
+---
+
+## ⚙️ Tech Stack
+
+- Java 17, Spring Boot 3
+- Spring Security + JWT
+- Redis (distributed locking, caching, atomic counters)
+- JPA (Optimistic/Pessimistic Locking)
+- PostgreSQL
+- Kafka (used for stock rollback events and consumers)
+- Docker & Docker Compose
+- CI/CD with Jenkins (planned)
 
 
+# 🛒 AI 쇼핑몰 프로젝트
 
-✅ 1. 로그인 기능 (Spring Security + JWT)
+Spring Boot 기반의 AI 추천 기능이 포함된 쇼핑몰 프로젝트입니다.  
+JWT 인증, 동시성 제어, Redis 캐싱, 쿠폰 시스템 등 다양한 백엔드 기능을 구현하였습니다.
 
-📌 목표
+---
+
+## ✅ 주요 기능
+
+### 1. 🔐 로그인 기능 (Spring Security + JWT)
 - 사용자 인증 후 JWT 발급
 - JWT를 통해 로그인 상태 유지
-- 이후 요청마다 JWT로 인증 처리
+- 모든 요청에 대해 JWT 기반 인증 처리
 
-✅ 2. 상품 전체 조회 / 카테고리별 조회
+---
 
-✔️ API 설계
-- GET /products → 전체 상품 조회
-- GET /products?category=electronics → 카테고리 필터
+### 2. 📦 상품 조회
+- `GET /products` : 전체 상품 조회
+- `GET /products?category=electronics` : 카테고리 필터링
+- `GET /products?brand=BRAND` : 브랜드 필터링
 
-✅ 3. 브랜드 추가
-✔️ API 설계
-- GET /products?brand=BRAND → 브랜드 필터
+---
 
-brand 추가로 N+1 이슈 발생 가능 -> fetch join 으로 개선
+### 3. 📉 재고 관리 및 동시성 제어
 
-✅ 4. 재고 관리
+#### 🔥 문제 상황
+- 재고가 1개인 상품에 대해 여러 사용자가 동시에 주문 시, 재고가 음수가 될 수 있음
 
-🔥 동시성 문제 설명
-- 동시에 여러 사용자가 재고가 1개 남은 상품을 주문하면 재고가 음수가 될 수 있음.
-- 해결 필요.
+#### 🛠 해결 방안
+- Redis를 이용한 재고 선점 후, DB에서 최종 차감
+- Optimistic Lock (@Version)
+- Pessimistic Lock (`@Transactional` + `PESSIMISTIC_WRITE`)
 
-🛠 재고 감소 API
+#### 💳 결제 흐름
 
-- 시나리오
-100개의 상품을 동시에 1000명이 주문할 수 있을 때, 재고가 음수가 되는 걸 방지해야 함
-- 구현 방식
-1. Redis + Lua 스크립트로 락 처리
-2. DB의 @Version (Optimistic Lock) 활용
-3. @Transactional + PESSIMISTIC_WRITE
+1. 사용자가 결제 요청
+2. 재고 선점 (Redis or DB Lock)
+3. PG사 결제 요청
+4. 결제 결과 확인
+    - ✅ 성공: 재고 차감 유지
+    - ❌ 실패: 재고 복원
+        - 결제 실패 이벤트 발생
+        - 재고 복원 큐에 적재
+        - Consumer가 복원 처리
 
-✅ 재고 선점 결제 흐름
-1. 사용자가 결제를 시도함
-2. 재고를 먼저 차감 (선점)
-3. 재고 수량을 줄이면서 동시에 동시성 제어를 해야 해 (예: Redis 락 or Optimistic Lock)
-4. 결제 요청을 PG사에 보냄
-5. 결제 결과 확인
-- 💰 성공하면 그대로 유지
-- ❌ 실패하면 → 재고를 복원
+---
 
-   재고 복원 로직을 별도로 둠
-   - 예: 
-    1. 결제 실패 이벤트
-  2. 재고 복원 큐에 추가
-  3. 소비자(consumer)가 재고 복원
+### 4. 🎟️ 쿠폰 시스템
 
-✅ 5. 쿠폰
+#### 💡 시나리오
+- 하루 100명에게만 쿠폰 제공
+- 동시 요청에도 정확히 100명만 성공해야 함
 
-🛠 쿠폰 선착순 발급
+#### 🔧 구현 방식
+- Redis `INCR` 또는 `DECR`로 원자적 제어
+- 실패 시 "선착순 마감" 메시지 응답
 
-시나리오
-- 하루에 100명에게만 쿠폰 발급
-- 동시에 여러 명이 요청 보내도 정확히 100명만 성공해야 함
+---
 
-해결책
-- Redis에서 atomic 연산 (INCR / DECR)
-- 실패한 요청은 “선착순 마감” 메시지
+### 5. ❤️ 좋아하는 브랜드 기능
 
-✅ 6. 좋아하는 브랜드 표시
+#### 🧠 문제 상황
+- 좋아요 버튼이 실시간으로 많이 눌려도 정확한 수 유지 필요
 
-🛠 좋아요 수 증가
-
-시나리오
-- 실시간으로 좋아요 누르는 사용자가 많아도 정확한 숫자 유지
-
-해결책
-- Redis에 좋아요 수 캐싱하고 일정 주기마다 DB 반영
+#### 💾 해결 방안
+- Redis에 좋아요 수 캐싱
+- 주기적으로 DB에 반영 (Batch 처리 또는 Cron 활용)
