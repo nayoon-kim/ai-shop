@@ -16,14 +16,14 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
      Optional<Stock> findByProductId(@Param("productId") Long productId);
 
      @Modifying(clearAutomatically = true)
-     @Query("UPDATE Stock s SET s.quantity = :quantity WHERE s.product.id = :productId AND s.quantity >= :quantity")
+     @Query("UPDATE Stock s SET s.quantity = :quantity WHERE s.productId = :productId AND s.quantity >= :quantity")
      void decrease(@Param("productId") Long productId, @Param("quantity") Long quantity);
 
      @Lock(LockModeType.PESSIMISTIC_WRITE)
-     @Query("SELECT s FROM Stock s WHERE s.product.id = :productId")
-     Optional<Stock> findByProductIdWithPessimisticLock(Long productId);
+     @Query("SELECT s FROM Stock s WHERE s.productId = :productId")
+     Optional<Stock> findByProductIdWithPessimisticLock(@Param("productId") Long productId);
 
      @Lock(LockModeType.OPTIMISTIC)
-     @Query("SELECT s FROM Stock s WHERE s.product.id = :productId")
+     @Query("SELECT s FROM Stock s WHERE s.productId = :productId")
      Optional<Stock> findByProductIdWithOptimisticLock(@Param("productId") Long productId);
 }
