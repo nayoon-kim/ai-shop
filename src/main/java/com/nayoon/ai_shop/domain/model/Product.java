@@ -26,7 +26,8 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    private Long brand_id;
+    @Column(nullable = false)
+    private Long brandId;
 
     @Column(nullable = false)
     private int price;
