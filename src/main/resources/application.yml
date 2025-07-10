@@ -22,9 +22,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
-  kafka:
-    topic:
-      rollback: rollback
+
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -39,6 +37,9 @@ spring:
           json:
             trusted:
               packages: '*'
+kafka:
+  topic:
+    rollback: rollback
 
 logging:
   level:
