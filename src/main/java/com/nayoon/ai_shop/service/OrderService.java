@@ -5,23 +5,21 @@ import com.nayoon.ai_shop.domain.model.OrderRepository;
 import com.nayoon.ai_shop.domain.model.Product;
 import com.nayoon.ai_shop.domain.model.Order;
 import com.nayoon.ai_shop.exception.*;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class OrderService {
-    protected final PaymentService paymentService;
-    protected final StockService stockService;
-    protected final RedisStockService redisStockService;
-    protected final ProductService productService;
-    protected final OrderRepository orderRepository;
-    protected final RollbackRetryProducer rollbackRetryProducer;
+    private final PaymentService paymentService;
+    private final ProductService productService;
+    private final OrderRepository orderRepository;
+    private final RollbackRetryProducer rollbackRetryProducer;
     private final StockManager stockManager;
 
-    public OrderService(PaymentService paymentService, StockService stockService, RedisStockService redisStockService,
-                        ProductService productService, OrderRepository orderRepository,
-                        RollbackRetryProducer rollbackRetryProducer, StockManager stockManager) {
+    public OrderService(PaymentService paymentService, ProductService productService, OrderRepository orderRepository,
+                        RollbackRetryProducer rollbackRetryProducer, StockManager stockManager
+    ) {
         this.paymentService = paymentService;
-        this.stockService = stockService;
-        this.redisStockService = redisStockService;
         this.productService = productService;
         this.orderRepository = orderRepository;
         this.rollbackRetryProducer = rollbackRetryProducer;
