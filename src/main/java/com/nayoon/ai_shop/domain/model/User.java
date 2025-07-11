@@ -1,20 +1,22 @@
 package com.nayoon.ai_shop.domain.model;
 
 import com.nayoon.ai_shop.infrastructure.security.PasswordHasher;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "users")
 public class User {
-    private final Long id;
-    private final String email;
-    private final String passwordHash;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, unique = true)
+    private String email;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    public User(Long id, String email, String passwordHash) {
-        this.id = id;
+    public User(String email, String passwordHash) {
         this.email = email;
         this.passwordHash = passwordHash;
-    }
-
-    public boolean isPasswordMatch(String rawPassword, PasswordHasher hasher) {
-        return hasher.matches(rawPassword, passwordHash);
     }
 
     public Long getId() {
@@ -25,7 +27,7 @@ public class User {
         return email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public boolean isPasswordMatch(String rawPassword, PasswordHasher hasher) {
+        return hasher.matches(rawPassword, passwordHash);
     }
 }

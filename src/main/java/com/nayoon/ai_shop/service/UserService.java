@@ -1,8 +1,7 @@
 package com.nayoon.ai_shop.service;
 
-import com.nayoon.ai_shop.infrastructure.persistence.UserEntity;
-import com.nayoon.ai_shop.infrastructure.security.JwtTokenProvider;
 import com.nayoon.ai_shop.domain.model.User;
+import com.nayoon.ai_shop.infrastructure.security.JwtTokenProvider;
 import com.nayoon.ai_shop.infrastructure.security.PasswordHasher;
 import com.nayoon.ai_shop.domain.model.UserRepository;
 import org.springframework.stereotype.Service;
@@ -24,12 +23,12 @@ public class UserService {
             throw new IllegalArgumentException("User already exists.");
         }
         String hash = hasher.hash(rawPassword);
-        User user = new User(null, email, hash);
+        User user = new User(email, hash);
         userRepository.save(user);
     }
 
     public String login(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email).map(UserEntity::toDomain)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!user.isPasswordMatch(rawPassword, hasher)) {
