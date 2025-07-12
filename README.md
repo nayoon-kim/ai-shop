@@ -1,7 +1,7 @@
 # 🛒 AI Shopping Mall Project
 
 This is a Spring Boot–based shopping mall project with AI-powered product recommendation features.  
-It includes JWT authentication, concurrency control, Redis caching, coupon issuance, and more.
+It includes JWT authentication, concurrency control, Redis caching and more.
 
 ---
 
@@ -45,7 +45,7 @@ It includes JWT authentication, concurrency control, Redis caching, coupon issua
 
 ---
 
-### 4. 🎟️ Coupon System
+### 4. 🎟️ Coupon System (planned)
 
 #### 💡 Scenario
 - Only 100 users per day can claim coupons
@@ -57,7 +57,7 @@ It includes JWT authentication, concurrency control, Redis caching, coupon issua
 
 ---
 
-### 5. ❤️ Favorite Brand Feature
+### 5. ❤️ Favorite Brand Feature (planned)
 
 #### 🧠 Problem
 - Even with high-frequency "like" clicks, the count must remain accurate
@@ -83,7 +83,7 @@ It includes JWT authentication, concurrency control, Redis caching, coupon issua
 # 🛒 AI 쇼핑몰 프로젝트
 
 Spring Boot 기반의 AI 추천 기능이 포함된 쇼핑몰 프로젝트입니다.  
-JWT 인증, 동시성 제어, Redis 캐싱, 쿠폰 시스템 등 다양한 백엔드 기능을 구현하였습니다.
+JWT 인증, 동시성 제어, Redis 캐싱 등 다양한 백엔드 기능을 구현하였습니다.
 
 ---
 
