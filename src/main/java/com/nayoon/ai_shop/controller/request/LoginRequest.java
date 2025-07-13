@@ -1,17 +1,13 @@
 package com.nayoon.ai_shop.controller.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoginRequest {
     private String email;
     private String password;
-
-    // 기본 생성자 (JSON 역직렬화용)
-    public LoginRequest() {}
-
-    public LoginRequest(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
-
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
 }
