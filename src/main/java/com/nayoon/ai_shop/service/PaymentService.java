@@ -8,7 +8,4 @@ public class PaymentService {
     public boolean pay(int cost) {
         return true;
     }
-
-    public void cancel(OrderRequest request) {
-    }
 }
