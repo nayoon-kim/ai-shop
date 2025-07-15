@@ -1,6 +1,5 @@
 package com.nayoon.ai_shop.service;
 
-import com.nayoon.ai_shop.controller.request.OrderRequest;
 import org.springframework.stereotype.Service;
 
 @Service

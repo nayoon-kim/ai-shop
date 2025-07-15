@@ -1,6 +1,5 @@
 package com.nayoon.ai_shop.config;
 
-import com.nayoon.ai_shop.domain.model.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
